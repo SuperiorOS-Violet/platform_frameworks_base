@@ -62,166 +62,192 @@ object KeyguardPreviewSmartspaceViewBinder {
             parentView.repeatWhenAttached {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch("$TAG#viewModel.previewClockSize") {
-                        combine(viewModel.previewClockSize, viewModel.showSmartspace, ::Pair)
-                            .collect { (clockSize, showSmartspace) ->
-                                val shouldFadeIn =
-                                    (currentShowSmartspace == false) && showSmartspace
-                                val largeDateViewVisibility =
-                                    if (showSmartspace) {
-                                        when (clockSize) {
-                                            ClockSizeSetting.DYNAMIC -> {
-                                                if (viewModel.shouldDateWeatherBeBelowLargeClock) {
-                                                    View.VISIBLE
-                                                } else {
-                                                    View.INVISIBLE
-                                                }
-                                            }
-                                            ClockSizeSetting.SMALL -> View.INVISIBLE
-                                        }
-                                    } else {
-                                        View.INVISIBLE
-                                    }
-                                val smallDateViewVisibility =
-                                    if (showSmartspace) {
-                                        when (clockSize) {
-                                            ClockSizeSetting.DYNAMIC -> {
-                                                if (viewModel.shouldDateWeatherBeBelowLargeClock) {
-                                                    View.INVISIBLE
-                                                } else {
-                                                    View.VISIBLE
-                                                }
-                                            }
-                                            ClockSizeSetting.SMALL -> View.VISIBLE
-                                        }
-                                    } else {
-                                        View.INVISIBLE
-                                    }
-                                largeDateView?.let {
-                                    if (shouldFadeIn && largeDateViewVisibility == View.VISIBLE) {
-                                        it.alpha = 0F
-                                    }
-                                    it.visibility = largeDateViewVisibility
-                                }
-                                smallDateView?.let {
-                                    if (shouldFadeIn && smallDateViewVisibility == View.VISIBLE) {
-                                        it.alpha = 0F
-                                    }
-                                    it.visibility = smallDateViewVisibility
-                                }
-                                if (shouldFadeIn) {
-                                    if (largeDateViewVisibility == View.VISIBLE) {
-                                        largeDateView?.animateToAlpha(1F)
-                                    }
-                                    if (smallDateViewVisibility == View.VISIBLE) {
-                                        smallDateView?.animateToAlpha(1F)
-                                    }
-                                }
-                                val cs = ConstraintSet()
-                                cs.clone(parentView)
-                                cs.apply {
-                                    val smallClockViewId = ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL
-                                    val largeClockViewId = ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE
+                        combine(
+                            viewModel.previewClockSize,
+                            viewModel.showSmartspace,
+                            ::Pair
+                        ).collect { (clockSize, showSmartspace) ->
+
+                            val shouldFadeIn =
+                                (currentShowSmartspace == false) && showSmartspace
+
+                            val largeDateViewVisibility =
+                                if (showSmartspace) {
                                     when (clockSize) {
                                         ClockSizeSetting.DYNAMIC -> {
                                             if (viewModel.shouldDateWeatherBeBelowLargeClock) {
-                                                largeDateView.also { view ->
-                                                    constrainWidth(
-                                                        view.id,
-                                                        ConstraintSet.WRAP_CONTENT,
-                                                    )
-                                                    constrainHeight(
-                                                        view.id,
-                                                        ConstraintSet.WRAP_CONTENT,
-                                                    )
-                                                    connect(view.id, START, largeClockViewId, START)
-                                                    connect(
-                                                        view.id,
-                                                        ConstraintSet.END,
-                                                        largeClockViewId,
-                                                        ConstraintSet.END,
-                                                    )
-                                                    connect(
-                                                        view.id,
-                                                        TOP,
-                                                        largeClockViewId,
-                                                        ConstraintSet.BOTTOM,
-                                                        viewModel.getDateWeatherEndPadding(
-                                                            view.context
-                                                        ),
-                                                    )
-                                                }
+                                                View.VISIBLE
                                             } else {
-                                                smallDateView?.also { view ->
-                                                    constrainWidth(
-                                                        view.id,
-                                                        ConstraintSet.WRAP_CONTENT,
-                                                    )
-                                                    constrainHeight(
-                                                        view.id,
-                                                        ConstraintSet.WRAP_CONTENT,
-                                                    )
-                                                    (view as? LinearLayout)?.orientation =
-                                                        LinearLayout.HORIZONTAL
-                                                    connect(view.id, START, smallClockViewId, START)
-                                                    clear(view.id, TOP)
-                                                    connect(
-                                                        view.id,
-                                                        TOP,
-                                                        PARENT_ID,
-                                                        TOP,
-                                                        viewModel.getLargeClockSmartspaceTopPadding(
-                                                            parentView.context,
-                                                            previewViewModel.buildPreviewConfig(),
-                                                        ),
-                                                    )
-                                                }
+                                                View.INVISIBLE
                                             }
                                         }
+                                        ClockSizeSetting.SMALL -> View.INVISIBLE
+                                    }
+                                } else {
+                                    View.INVISIBLE
+                                }
 
-                                        ClockSizeSetting.SMALL -> {
+                            val smallDateViewVisibility =
+                                if (showSmartspace) {
+                                    when (clockSize) {
+                                        ClockSizeSetting.DYNAMIC -> {
+                                            if (viewModel.shouldDateWeatherBeBelowLargeClock) {
+                                                View.INVISIBLE
+                                            } else {
+                                                View.VISIBLE
+                                            }
+                                        }
+                                        ClockSizeSetting.SMALL -> View.VISIBLE
+                                    }
+                                } else {
+                                    View.INVISIBLE
+                                }
+
+                            largeDateView?.let {
+                                if (shouldFadeIn && largeDateViewVisibility == View.VISIBLE) {
+                                    it.alpha = 0F
+                                }
+                                it.visibility = largeDateViewVisibility
+                            }
+
+                            smallDateView?.let {
+                                if (shouldFadeIn && smallDateViewVisibility == View.VISIBLE) {
+                                    it.alpha = 0F
+                                }
+                                it.visibility = smallDateViewVisibility
+                            }
+
+                            if (shouldFadeIn) {
+                                if (largeDateViewVisibility == View.VISIBLE) {
+                                    largeDateView?.animateToAlpha(1F)
+                                }
+                                if (smallDateViewVisibility == View.VISIBLE) {
+                                    smallDateView?.animateToAlpha(1F)
+                                }
+                            }
+
+                            val cs = ConstraintSet()
+                            cs.clone(parentView)
+                            cs.apply {
+                                val smallClockViewId = ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL
+                                val largeClockViewId = ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE
+
+                                when (clockSize) {
+
+                                    ClockSizeSetting.DYNAMIC -> {
+                                        if (viewModel.shouldDateWeatherBeBelowLargeClock) {
+
+                                            // FIXED: added ?.also
+                                            largeDateView?.also { view ->
+                                                constrainWidth(
+                                                    view.id,
+                                                    ConstraintSet.WRAP_CONTENT,
+                                                )
+                                                constrainHeight(
+                                                    view.id,
+                                                    ConstraintSet.WRAP_CONTENT,
+                                                )
+                                                connect(view.id, START, largeClockViewId, START)
+                                                connect(
+                                                    view.id,
+                                                    ConstraintSet.END,
+                                                    largeClockViewId,
+                                                    ConstraintSet.END,
+                                                )
+                                                connect(
+                                                    view.id,
+                                                    TOP,
+                                                    largeClockViewId,
+                                                    ConstraintSet.BOTTOM,
+                                                    viewModel.getDateWeatherEndPadding(
+                                                        view.context
+                                                    ),
+                                                )
+                                            }
+
+                                        } else {
+
+                                            // FIXED: added ?.also
                                             smallDateView?.also { view ->
-                                                constrainWidth(view.id, ConstraintSet.WRAP_CONTENT)
-                                                constrainHeight(view.id, ConstraintSet.WRAP_CONTENT)
-                                                if (viewModel.shouldDateWeatherBeBelowSmallClock) {
-                                                    (view as? LinearLayout)?.orientation =
-                                                        LinearLayout.HORIZONTAL
-                                                    connect(view.id, START, smallClockViewId, START)
-                                                    connect(
-                                                        view.id,
-                                                        TOP,
-                                                        smallClockViewId,
-                                                        ConstraintSet.BOTTOM,
-                                                        view.resources.getDimensionPixelSize(
-                                                            R.dimen.smartspace_padding_vertical
-                                                        ),
-                                                    )
-                                                } else {
-                                                    (view as? LinearLayout)?.orientation =
-                                                        LinearLayout.VERTICAL
-                                                    connect(
-                                                        view.id,
-                                                        START,
-                                                        smallClockViewId,
-                                                        ConstraintSet.END,
-                                                        view.resources.getDimensionPixelSize(
-                                                            R.dimen.smartspace_padding_horizontal
-                                                        ),
-                                                    )
-                                                    connect(view.id, TOP, smallClockViewId, TOP)
-                                                    connect(
-                                                        view.id,
-                                                        ConstraintSet.BOTTOM,
-                                                        smallClockViewId,
-                                                        ConstraintSet.BOTTOM,
-                                                    )
-                                                }
+                                                constrainWidth(
+                                                    view.id,
+                                                    ConstraintSet.WRAP_CONTENT,
+                                                )
+                                                constrainHeight(
+                                                    view.id,
+                                                    ConstraintSet.WRAP_CONTENT,
+                                                )
+                                                (view as? LinearLayout)?.orientation =
+                                                    LinearLayout.HORIZONTAL
+                                                connect(view.id, START, smallClockViewId, START)
+                                                clear(view.id, TOP)
+                                                connect(
+                                                    view.id,
+                                                    TOP,
+                                                    PARENT_ID,
+                                                    TOP,
+                                                    viewModel.getLargeClockSmartspaceTopPadding(
+                                                        parentView.context,
+                                                        previewViewModel.buildPreviewConfig(),
+                                                    ),
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    ClockSizeSetting.SMALL -> {
+
+                                        // FIXED: added ?.also
+                                        smallDateView?.also { view ->
+                                            constrainWidth(
+                                                view.id,
+                                                ConstraintSet.WRAP_CONTENT
+                                            )
+                                            constrainHeight(
+                                                view.id,
+                                                ConstraintSet.WRAP_CONTENT
+                                            )
+                                            if (viewModel.shouldDateWeatherBeBelowSmallClock) {
+                                                (view as? LinearLayout)?.orientation =
+                                                    LinearLayout.HORIZONTAL
+                                                connect(view.id, START, smallClockViewId, START)
+                                                connect(
+                                                    view.id,
+                                                    TOP,
+                                                    smallClockViewId,
+                                                    ConstraintSet.BOTTOM,
+                                                    view.resources.getDimensionPixelSize(
+                                                        R.dimen.smartspace_padding_vertical
+                                                    ),
+                                                )
+                                            } else {
+                                                (view as? LinearLayout)?.orientation =
+                                                    LinearLayout.VERTICAL
+                                                connect(
+                                                    view.id,
+                                                    START,
+                                                    smallClockViewId,
+                                                    ConstraintSet.END,
+                                                    view.resources.getDimensionPixelSize(
+                                                        R.dimen.smartspace_padding_horizontal
+                                                    ),
+                                                )
+                                                connect(view.id, TOP, smallClockViewId, TOP)
+                                                connect(
+                                                    view.id,
+                                                    ConstraintSet.BOTTOM,
+                                                    smallClockViewId,
+                                                    ConstraintSet.BOTTOM,
+                                                )
                                             }
                                         }
                                     }
                                 }
-                                cs.applyTo(parentView)
-                                currentShowSmartspace = showSmartspace
                             }
+
+                            cs.applyTo(parentView)
+                            currentShowSmartspace = showSmartspace
+                        }
                     }
                 }
             }
@@ -256,7 +282,9 @@ object KeyguardPreviewSmartspaceViewBinder {
                     }
                 }
                 launch("$TAG#viewModel.shouldHideSmartspace") {
-                    viewModel.shouldHideSmartspace.collect { smartspace.isInvisible = it }
+                    viewModel.shouldHideSmartspace.collect {
+                        smartspace.isInvisible = it
+                    }
                 }
             }
         }
